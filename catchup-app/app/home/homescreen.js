@@ -1,17 +1,71 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Image, FlatList, ScrollView, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import TabIcon from '../../components/TabIcon';
+import axios from 'axios';
+import { useRouter } from "expo-router";
+
 
 const { width } = Dimensions.get('window');
 
-const categories = ['UI & UX', 'Animation', 'Graphic Design'];
-const courses = [
-  { id: '1', title: 'Visual Design', author: 'Luis John', price: '$250', image: require('../../assets/images/courseImg1.png') },
-  { id: '2', title: 'UX Research', author: 'Aina Asif', price: '$250', image: require('../../assets/images/courseImg2.png') },
-];
+
 
 const homescreen = () => {
+  const [allCourses, setAllCourses] = useState([]);
+  const [primaryCourses, setPrimaryCourses] = useState([]);
+  const [secondaryCourses, setSecondaryCourses] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    axios
+      .get("https://catchup-project.onrender.com/api/offlinecourse")
+      .then((response) => {
+        const courses = response.data;
+        setAllCourses(courses);
+
+        // Separate courses by category
+        const primary = courses.filter(course => course.category === "Primary");
+        const secondary = courses.filter(course => course.category === "Secondary");
+        setPrimaryCourses(primary);
+        setSecondaryCourses(secondary);
+
+        // Extract unique subjects from all courses
+        const uniqueSubjects = [...new Set(courses.map(course => course.subject))];
+        setCategories(uniqueSubjects);
+      })
+      .catch((error) => console.error("Error fetching courses:", error));
+  }, []);
+
+  // Function to filter courses by subject within each category
+  const filterByCategory = (subject) => {
+    if (subject === selectedCategory) {
+      setPrimaryCourses(allCourses.filter(course => course.category === "Primary"));
+      setSecondaryCourses(allCourses.filter(course => course.category === "Secondary"));
+      setSelectedCategory(null);
+    } else {
+      setPrimaryCourses(allCourses.filter(course => course.category === "Primary" && course.subject === subject));
+      setSecondaryCourses(allCourses.filter(course => course.category === "Secondary" && course.subject === subject));
+      setSelectedCategory(subject);
+    }
+  };
+
+   // Function to navigate to course detail page
+   const navigateToCourseDetail = (id) => {
+    router.push(`/course/${id}`); // Use Expo Router's push method for navigation
+  };
+
+  const renderCourse = ({ item }) => (
+    <TouchableOpacity onPress={() => navigateToCourseDetail(item._id)}>
+      <View style={styles.courseCard}>
+        <Image source={{ uri: item.courseImage }} style={styles.courseImage} />
+        <Text style={styles.courseTitle}>{item.title}</Text>
+        <Text style={styles.courseAuthor}>By: {item.instructor?.name || "Unknown"}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
       {/* Scrollable Content */}
@@ -38,54 +92,46 @@ const homescreen = () => {
 
         {/* Categories */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryContainer}>
-          {categories.map((category, index) => (
-            <TouchableOpacity key={index} style={styles.category}>
-              <Text style={styles.categoryText}>{category}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+        {categories.map((category, index) => (
+          <TouchableOpacity 
+            key={index} 
+            style={[styles.category, selectedCategory === category && styles.selectedCategory]}
+            onPress={() => filterByCategory(category)}
+          >
+            <Text style={styles.categoryText}>{category}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
+
 
         {/* Trending Courses */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Secondary Courses 🔥</Text>
-          <Text style={styles.seeAll}>See All</Text>
+          <Text style={styles.sectionTitle}>Secondary Courses </Text>
+          {/* <Text style={styles.seeAll}>See All</Text> */}
         </View>
         <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          data={courses}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.courseList}
-          renderItem={({ item }) => (
-            <View style={styles.courseCard}>
-              <Image source={item.image} style={styles.courseImage} />
-              <Text style={styles.coursePrice}>{item.price}</Text>
-              <Text style={styles.courseTitle}>{item.title}</Text>
-              <Text style={styles.courseAuthor}>By: {item.author}</Text>
-            </View>
-          )}
-        />
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        data={secondaryCourses}
+        keyExtractor={(item) => item._id}
+        contentContainerStyle={styles.courseList}
+        renderItem={renderCourse}
+      />
 
         {/* Primary Courses */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Primary Courses 🔥</Text>
-          <Text style={styles.seeAll}>See All</Text>
+          <Text style={styles.sectionTitle}>Primary Courses </Text>
+          {/* <Text style={styles.seeAll}>See All</Text> */}
         </View>
         <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          data={courses}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.courseList}
-          renderItem={({ item }) => (
-            <View style={styles.courseCard}>
-              <Image source={item.image} style={styles.courseImage} />
-              <Text style={styles.coursePrice}>{item.price}</Text>
-              <Text style={styles.courseTitle}>{item.title}</Text>
-              <Text style={styles.courseAuthor}>By: {item.author}</Text>
-            </View>
-          )}
-        />
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        data={primaryCourses}
+        keyExtractor={(item) => item._id}
+        contentContainerStyle={styles.courseList}
+        renderItem={renderCourse}
+      />
 
         {/* Extra spacing for better scroll experience */}
         <View style={{ height: 120 }} />
@@ -162,6 +208,7 @@ const styles = StyleSheet.create({
     bottom: 20,
     alignSelf: 'center',
   },
+ 
 });
 
 export default homescreen;

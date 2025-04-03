@@ -60,7 +60,7 @@ export default function OnboardingScreen() {
       flatListRef.current.scrollToIndex({ index: nextIndex, animated: true });
       setCurrentIndex(nextIndex);
     } else {
-      router.push('auth/signup'); // Navigate to main screen
+      router.push('auth/role'); // Navigate to main screen
     }
   };
 

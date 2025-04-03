@@ -41,7 +41,8 @@ const AuthenticatedStack = () => {
 
     return (
   <>
-      <Stack initialRouteName="index" screenOptions={{ headerShown: false }}>
+        <Stack initialRouteName="auth/role" screenOptions={{ headerShown: false }}>
+
       
       </Stack>
       
@@ -52,17 +53,18 @@ const AuthenticatedStack = () => {
   };
   
   const UnauthenticatedStack = () => (
-    <Stack initialRouteName="index" screenOptions={{ headerShown: false }}>
+    <Stack initialRouteName="auth/role" screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="auth/role" options={{ headerShown: false }} />
      <Stack.Screen name="auth/login" options={{ headerShown: false }} />
      <Stack.Screen name="auth/signup" options={{ headerShown: false }} />
      <Stack.Screen name="home/homescreen" options={{ headerShown: false }} />
      <Stack.Screen name="home/profile" options={{ headerShown: false }} />
      <Stack.Screen name="course/courselist" options={{ headerShown: false }} />
-     <Stack.Screen name="course/coursedetails" options={{ headerShown: false }} />
+     <Stack.Screen name="course/offlinecoursedetails" options={{ headerShown: false }} />
      <Stack.Screen name="course/mycourse" options={{ headerShown: false }} />
      <Stack.Screen name="course/offlinecourse" options={{ headerShown: false }} />
-     <Stack.Screen name="course/offlinedetails" options={{ headerShown: false }} />
+     <Stack.Screen name="course/[id]" options={{ headerShown: false }} />
      <Stack.Screen name="subscription/sub" options={{ headerShown: false }} />
      <Stack.Screen name="quiz/quiz" options={{ headerShown: false }} />
      <Stack.Screen name="quiz/quizdetails" options={{ headerShown: false }} />
