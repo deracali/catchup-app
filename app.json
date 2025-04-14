@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "catchupapp",
-    "slug": "catchupapp",
+    "slug": "catchup",
     "version": "13.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/cat2Logo.png",
@@ -51,8 +51,9 @@
         "origin": false
       },
       "eas": {
-        "projectId": "catchup"
+        "projectId": "6cb14f75-12b5-4283-ba36-a62693b77be6"
       }
-    }
+    },
+    "owner": "deracali"
   }
 }
