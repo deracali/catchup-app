@@ -7,7 +7,8 @@ import {
   StyleSheet,
   Dimensions,
   Linking,
-  ActivityIndicator
+  ActivityIndicator,
+  StatusBar
 } from "react-native";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -73,21 +74,20 @@ const Sub = () => {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#007bff" />
-        <Text>Loading user info...</Text>
+        <Text>Loading sub info...</Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
+      <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
       <View style={styles.header}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => router.back()}>
           <AntDesign name="arrowleft" size={24} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Subscription Plans</Text>
-        <TouchableOpacity>
-          <Feather name="bell" size={24} color="black" />
-        </TouchableOpacity>
+      
       </View>
 
       <Text style={styles.subtitle}>Choose The Right Plan For Your Learning Journey.</Text>

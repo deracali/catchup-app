@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import TeacherTab from '../../components/TeacherTab';
 
 const TeacherTermsScreen = () => {
   const handleAccept = () => {
@@ -16,6 +17,7 @@ const TeacherTermsScreen = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
       <View style={styles.header}>
         <Ionicons name="eye" size={24} color="#1a73e8" />
         <Text style={styles.title}>Terms of Service</Text>
@@ -34,8 +36,7 @@ const TeacherTermsScreen = () => {
         <Text style={styles.paragraph}>✅ Create and upload original learning content.</Text>
         <Text style={styles.paragraph}>✅ Communicate professionally with students and parents.</Text>
         <Text style={styles.paragraph}>✅ Track your session schedule and update availability regularly.</Text>
-        <Text style={styles.paragraph}>✅ Access your earnings and performance insights through your dashboard.</Text>
-
+        
         <Text style={styles.sectionTitle}>What You Shouldn’t Do</Text>
         <Text style={styles.paragraph}>❌ Share personal contact information with students.</Text>
         <Text style={styles.paragraph}>❌ Use copyrighted materials without proper permission.</Text>
@@ -66,6 +67,8 @@ const TeacherTermsScreen = () => {
           <Text style={styles.acceptText}>Accept</Text>
         </TouchableOpacity>
       </View>
+
+       <TeacherTab />
     </View>
   );
 };

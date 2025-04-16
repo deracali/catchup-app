@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator, StyleSheet, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -62,6 +62,7 @@ const teacherlogin = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
          <TouchableOpacity onPress={() => router.back()} style={styles.goBack}>
               <Text style={styles.goBackText}>← Back</Text>
             </TouchableOpacity>
@@ -158,7 +159,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
-    marginBottom:20,
   },
   goBackText: {
     fontSize: 16,

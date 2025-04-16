@@ -9,6 +9,7 @@ import {
   TextInput,
   ActivityIndicator,
   Alert,
+  StatusBar,
 } from "react-native";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -134,6 +135,7 @@ const teacherprofile = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#f8f5f2", paddingTop: height * 0.05 }}>
+      <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
       <Text style={{ fontSize: width * 0.06, fontWeight: "bold", textAlign: "center" }}>
         Profile
       </Text>

@@ -7,7 +7,8 @@ import {
   Modal, 
   StyleSheet, 
   Alert, 
-  ActivityIndicator 
+  ActivityIndicator, 
+  StatusBar
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AntDesign, Feather } from "@expo/vector-icons";
@@ -148,6 +149,7 @@ const quizsystem = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
@@ -247,21 +249,21 @@ const styles = StyleSheet.create({
   loading: { padding: 20, fontSize: 18 },
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   progressBarBackground: { flex: 1, height: 6, backgroundColor: "#eee", borderRadius: 5, marginHorizontal: 15 },
-  progressBarFill: { height: 6, backgroundColor: "#8a2be2", borderRadius: 5 },
+  progressBarFill: { height: 6, backgroundColor: "#1a73e8", borderRadius: 5 },
   timer: { flexDirection: "row", alignItems: "center" },
   timerText: { marginLeft: 5, fontWeight: "bold" },
   questionTitle: { marginTop: 30, fontSize: 18, fontWeight: "bold", marginBottom: 15 },
   sentenceContainer: { alignItems: "center", marginBottom: 25 },
   sentenceText: { fontSize: 20, fontWeight: "500", textAlign: "center" },
   option: {
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#1a73e8",
     padding: 18,
     borderRadius: 12,
     marginBottom: 12,
     borderWidth: 1,
     borderColor: "#ddd",
   },
-  optionText: { fontSize: 16, textAlign: "center", fontWeight: "500" },
+  optionText: { fontSize: 16, textAlign: "center", fontWeight: "500", color:'#fff', },
   correctOption: {
     backgroundColor: "#d4edda",
     padding: 18,
@@ -291,7 +293,7 @@ const styles = StyleSheet.create({
   footerTitle: { fontSize: 20, fontWeight: "bold", marginBottom: 10 },
   footerText: { fontSize: 16, color: "#6c757d", marginBottom: 10 },
   nextButton: {
-    backgroundColor: "#8a2be2",
+    backgroundColor: "#1a73e8",
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 10,

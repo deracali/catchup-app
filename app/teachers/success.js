@@ -3,9 +3,9 @@ import { View, Text, TouchableOpacity, Dimensions, StyleSheet, ActivityIndicator
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
-const SuccessModal = () => {
+const success = () => {
   const { email } = useLocalSearchParams();
   const router = useRouter();
 
@@ -109,4 +109,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default successModal;
+export default success;

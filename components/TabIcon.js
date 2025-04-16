@@ -78,6 +78,16 @@ const TabIcon = () => {
               color={pathname.includes('mycourse') ? '#1a73e8' : '#333'} 
             />
           </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.menuItem} 
+            onPress={() => handlePress('/course/bookingList')}
+          >
+            <Ionicons 
+              name="calendar-outline" 
+              size={24} 
+              color={pathname.includes('mycourse') ? '#1a73e8' : '#333'} 
+            />
+          </TouchableOpacity>
     
           {/* Community */}
           <TouchableOpacity 
@@ -102,6 +112,8 @@ const TabIcon = () => {
               color={pathname.includes('help') ? '#1a73e8' : '#333'} 
             />
           </TouchableOpacity>
+
+
 
           <TouchableOpacity 
             style={styles.menuItem} 
@@ -145,7 +157,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 5,
     justifyContent: 'space-between',
-    width: 280,
+    width: 320,
   },
   menuItem: {
     padding: 10,

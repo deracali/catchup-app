@@ -11,7 +11,8 @@ import {
   ScrollView,
   TextInput,
   Alert,
-  ActivityIndicator
+  ActivityIndicator,
+  StatusBar
 } from "react-native";
 import { AntDesign, Feather, Entypo } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -161,16 +162,19 @@ const teacherdetails = () => {
  const formattedDate = date instanceof Date && !isNaN(date) ? date.toDateString() : 'Invalid Date';
  const formattedTime = time instanceof Date && !isNaN(time) ? time.toLocaleTimeString() : 'Invalid Time';
 
-
-  if (!teacher) {
+ if (!teacher) {
+  return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <ActivityIndicator size="large" color="#0000ff" />
     </View>
-  }
+  );
+}
+
 
   return (
     <View style={styles.container}>
       {/* Header */}
+      <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <AntDesign name="arrowleft" size={24} color="black" />

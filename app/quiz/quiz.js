@@ -9,6 +9,7 @@ import {
   ScrollView,
   Image,
   StyleSheet,
+  StatusBar,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -28,7 +29,7 @@ const quiz = () => {
   const router = useRouter();
 
   useEffect(() => {
-    AsyncStorage.getItem("role").then((roleData) => {
+    AsyncStorage.getItem("@role").then((roleData) => {
       setRole(roleData);
     });
 
@@ -48,19 +49,15 @@ const quiz = () => {
 
   useEffect(() => {
     if (role) {
-      const filtered = quizData.filter((quiz) => quiz.category === role);
-
-      if (selectedSubject) {
-        setFilteredQuizzes(
-          filtered.filter((quiz) =>
-            quiz.questions.some((q) => q.subject === selectedSubject)
-          )
-        );
-      } else {
-        setFilteredQuizzes(filtered);
-      }
+      const normalizedRole = role.trim().toLowerCase();
+      const filtered = quizData.filter((quiz) =>
+        quiz.category.trim().toLowerCase() === normalizedRole
+      );
+      console.log("Filtered quizzes:", filtered);
+      setFilteredQuizzes(filtered);
     }
-  }, [role, quizData, selectedSubject]);
+  }, [role, quizData]);
+  
 
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
@@ -69,24 +66,46 @@ const quiz = () => {
     setFilteredQuizzes(filtered);
   };
 
-  const handleSubjectClick = (subject) => {
-    setSelectedSubject(subject);
-    const filtered = quizData.filter(
-      (quiz) => quiz.category === selectedCategory
-    );
-    setFilteredQuizzes(
-      filtered.filter((quiz) =>
-        quiz.questions.some((question) => question.subject === subject)
-      )
-    );
-  };
+  
 
-  const handleQuizClick = (quizId) => {
-    router.push({
-      pathname: `/quiz/${quizId}`,
-      query: { id: quizId },
-    });
+  const handleQuizClick = async (quizId) => {
+    try {
+      const studentId = await AsyncStorage.getItem("@userId");
+  
+      if (!studentId) {
+        alert("You must be logged in to view quiz details.");
+        return;
+      }
+  
+      const res = await axios.get(`https://catchup-project.onrender.com/api/users/profile/${studentId}`);
+      const user = res.data;
+  
+      const now = new Date();
+      const hasSubscription =
+        user.subscriptions &&
+        user.subscriptions.some(
+          (sub) =>
+            (sub.plan === "Per Subject" || sub.plan === "All Subjects") &&
+            new Date(sub.endDate) > now
+        );
+  
+      if (!hasSubscription) {
+        alert("You must have an active 'Per Subject' or 'All Subjects' plan. Redirecting to pricing.");
+        router.push("/pricing"); // 🔁 Update this to your actual pricing screen path
+        return;
+      }
+  
+      // ✅ Subscribed – proceed to quiz
+      router.push({
+        pathname: `/quiz/${quizId}`,
+        query: { id: quizId },
+      });
+    } catch (error) {
+      console.error("Error checking subscription:", error);
+      alert("Something went wrong while verifying your subscription.");
+    }
   };
+  
 
   return (
     <View
@@ -97,6 +116,7 @@ const quiz = () => {
         paddingTop: height * 0.08,
       }}
     >
+      <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
       {/* Greeting + Quiz Code Box */}
       <View style={styles.headerCard}>
         <Text style={styles.greetingText}>👋 Hello</Text>
@@ -134,6 +154,8 @@ const quiz = () => {
           ))}
       </ScrollView>
 
+
+    
       {/* Quiz List */}
       <ScrollView
         style={{ marginTop: height * 0.02 }}

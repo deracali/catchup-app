@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, StatusBar } from "react-native";
 import React from "react";
 
 const Review = () => {
@@ -9,6 +9,7 @@ const Review = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
       <Text style={styles.title}>Quiz Review</Text>
       <Text style={styles.score}>You scored {score} out of {total}</Text>
 

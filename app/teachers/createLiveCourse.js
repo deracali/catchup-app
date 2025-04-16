@@ -8,6 +8,7 @@ import {
   Alert,
   ScrollView,
   Platform,
+  StatusBar,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -95,6 +96,7 @@ const CreateLiveCourse = () => {
 
   return (
     <ScrollView style={styles.container}>
+      <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
       <Text style={styles.header}>Create Live Course</Text>
 
       <View style={styles.inputGroup}>

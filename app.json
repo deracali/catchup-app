@@ -4,11 +4,11 @@
     "slug": "catchup",
     "version": "13.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/cat2Logo.png",
+    "icon": "./assets/images/app-icon.jpg",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/cat2Logo.png",
+      "image": "./assets/images/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -22,7 +22,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/cat2Logo.png",
+        "foregroundImage": "./assets/images/app-icon.jpg",
         "backgroundColor": "#ffffff"
       },
       "package": "com.catchup.app"
@@ -54,6 +54,12 @@
         "projectId": "6cb14f75-12b5-4283-ba36-a62693b77be6"
       }
     },
-    "owner": "deracali"
+    "owner": "deracali",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/6cb14f75-12b5-4283-ba36-a62693b77be6"
+    }
   }
 }

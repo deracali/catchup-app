@@ -7,6 +7,7 @@ import {
   Dimensions,
   TouchableOpacity,
   ScrollView,
+  StatusBar,
 } from "react-native";
 import { AntDesign, FontAwesome, Feather, Entypo } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -51,7 +52,7 @@ export default function help() {
 
   return (
     <View style={styles.container}>
-      
+<StatusBar translucent backgroundColor="#000" barStyle="light-content" />
       {/* Header */}
       <Text style={styles.header}>Help Center</Text>
 

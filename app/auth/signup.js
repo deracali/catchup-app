@@ -13,6 +13,7 @@ import {
   ScrollView,
   Platform,
   StyleSheet,
+  StatusBar,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -68,6 +69,7 @@ const signup = () => {
     >
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         {/* Logo Area */}
+        <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
            <TouchableOpacity onPress={() => router.back()} style={styles.goBack}>
                 <Text style={styles.goBackText}>← Back</Text>
               </TouchableOpacity>

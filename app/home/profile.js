@@ -11,6 +11,7 @@ import {
   Alert,
   ScrollView,
   StyleSheet,
+  StatusBar,
 } from "react-native";
 import { Ionicons, Feather, MaterialIcons, AntDesign } from "@expo/vector-icons";
 import TabIcon from "../../components/TabIcon";
@@ -43,6 +44,13 @@ const menuOptions = [
   },
   {
     id: "2",
+    title: "Subscription Status",
+    route: "subscription/substatus",
+    icon: <Ionicons name="document-text-outline" size={24} color="#0984e3" />
+    ,
+  },
+  {
+    id: "3",
     title: "Logout",
     route: "Logout",
     icon: <Ionicons name="log-out-outline" size={24} color="#d63031" />,
@@ -159,6 +167,7 @@ const profilescreen = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#f9f9f9", paddingTop: height * 0.05 }}>
+      <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
       {/* Tab Switch */}
        <TouchableOpacity onPress={() => router.back()} style={styles.goBack}>
                       <Text style={styles.goBackText}>← Back</Text>

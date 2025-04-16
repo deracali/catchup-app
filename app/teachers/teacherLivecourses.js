@@ -12,6 +12,7 @@ import {
   Modal,
   TextInput,
   Linking,
+  StatusBar,
 } from "react-native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -194,6 +195,7 @@ const TeacherLiveCourses = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#f1f1f1", paddingTop: width * 0.1 }}>
+      <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
       <Text
         style={{
           fontSize: width * 0.06,

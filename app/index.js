@@ -17,28 +17,29 @@ const onboardingData = [
   {
     id: '1',
     title: 'Welcome to CATCHUP',
-    description: 'Unlock the best IT courses for your career growth.',
+    description: 'Practice past questions, book private teachers, and join live classes to excel academically.',
     image: require('../assets/images/onboard1.png'), // Replace with your image path
   },
   {
     id: '2',
-    title: 'Explore a wide range of IT Courses',
-    description: 'From coding to cybersecurity, we have it all!',
+    title: 'Explore Past Questions',
+    description: 'Master every topic with curated past questions and detailed solutions.',
     image: require('../assets/images/onboard2.png'),
   },
   {
     id: '3',
-    title: 'Learn on your own Schedule',
-    description: 'Access courses on the go, anytime, from anywhere.',
+    title: 'Book Private Teachers',
+    description: 'Learn 1-on-1 with qualified teachers tailored to your learning style and goals.',
     image: require('../assets/images/onboard3.png'),
   },
   {
     id: '4',
-    title: 'Ready to dive into Learning?',
-    description: 'Access courses on the go, anytime, from anywhere.',
+    title: 'Join Live Classes',
+    description: 'Attend engaging live sessions with expert instructors and interactive discussions.',
     image: require('../assets/images/onboard4.png'),
   },
 ];
+
 
 export default function OnboardingScreen() {
   const router = useRouter();

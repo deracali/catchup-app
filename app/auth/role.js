@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 
 const role = () => {
@@ -15,8 +15,8 @@ const role = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
       <View style={styles.container}>
-        
         <Image
           source={require('../../assets/images/3d2.jpg')}
           style={styles.illustration}

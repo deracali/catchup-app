@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  StatusBar,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import axios from "axios";
@@ -89,7 +90,7 @@ export default function Community() {
 
   return (
     <View style={styles.container}>
-      
+      <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Customer Service</Text>

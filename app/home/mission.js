@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar } from 'react-native';
 import * as Progress from 'react-native-progress';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -146,6 +146,7 @@ const Mission = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
       <Text style={styles.title}>Daily Mission Updates!</Text>
       <Text style={styles.level}>Level: {level}</Text>
       <Text style={styles.xp}>XP: {xp}</Text>

@@ -84,6 +84,7 @@ const AuthenticatedStack = () => {
      <Stack.Screen name="teachers/[id]" options={{ headerShown: false }} />
      <Stack.Screen name="teachers/home" options={{ headerShown: false }} />
      <Stack.Screen name="teachers/teachers" options={{ headerShown: false }} />
+     <Stack.Screen name="teachers/success" options={{ headerShown: false }} />
      <Stack.Screen name="teachers/teacherLivecourses" options={{ headerShown: false }} />
      <Stack.Screen name="teachers/bookingscreen" options={{ headerShown: false }} />
      <Stack.Screen name="help/help" options={{ headerShown: false }} />

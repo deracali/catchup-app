@@ -9,13 +9,16 @@ import {
   ActivityIndicator,
   Linking,
   Image,
-  TextInput
+  TextInput,
+  Modal
 } from 'react-native';
 import { Feather, FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import TeacherTab from '../../components/TeacherTab';
-import { usePathname } from 'expo-router';
+import { usePathname, useRouter } from 'expo-router';
+import { StatusBar } from 'react-native';
+
 
 const { width } = Dimensions.get('window');
 
@@ -25,12 +28,14 @@ export default function TasksScreen() {
   const [bookings, setBookings] = useState([]);
   const [activeFilter, setActiveFilter] = useState('All');
   const [activeDateIndex, setActiveDateIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const pathname = usePathname();
   const [teacherName, setTeacherName] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [googleMeetLink, setGoogleMeetLink] = useState('');
+  const [selectedBookingId, setSelectedBookingId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-
-
+  const pathname = usePathname();
+  const router = useRouter();
 
   // Fetch teacher ID from AsyncStorage
   useEffect(() => {
@@ -41,11 +46,10 @@ export default function TasksScreen() {
     fetchTeacherId();
   }, []);
 
-
+  // Fetch teacher name once teacherId is available
   useEffect(() => {
     const fetchTeacherName = async () => {
       try {
-      
         if (teacherId) {
           const response = await axios.get(`https://catchup-project.onrender.com/api/teachers/${teacherId}`);
           const fullName = response.data.name; // e.g. "John Smith"
@@ -56,32 +60,29 @@ export default function TasksScreen() {
         console.error('Failed to fetch teacher info:', error);
       }
     };
-
     fetchTeacherName();
   }, [teacherId]);
 
-  // Fetch courses and bookings data from your endpoint that already populates user info
+  // Fetch courses and bookings data (populate user info in bookings)
+  const fetchData = async () => {
+    try {
+      const [courseRes, bookingRes] = await Promise.all([
+        axios.get(`https://catchup-project.onrender.com/api/livecourses/getbyid/${teacherId}`),
+        axios.get(`https://catchup-project.onrender.com/api/bookings/teacher/${teacherId}`)
+      ]);
+      setCourses(courseRes.data || []);
+      setBookings(bookingRes.data || []);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    if (!teacherId) return;
-
-    const fetchData = async () => {
-      try {
-        const [courseRes, bookingRes] = await Promise.all([
-          axios.get(`https://catchup-project.onrender.com/api/livecourses/getbyid/${teacherId}`),
-          axios.get(`https://catchup-project.onrender.com/api/bookings/teacher/${teacherId}`)
-        ]);
-
-        setCourses(courseRes.data || []);
-        // No need for extra fetches here because the backend endpoint uses populate.
-        setBookings(bookingRes.data || []);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    if (teacherId) {
+      fetchData();
+    }
   }, [teacherId]);
 
   // Helper functions
@@ -89,11 +90,60 @@ export default function TasksScreen() {
     if (link) Linking.openURL(link);
   };
 
+  // When the user taps Accept, record the booking ID and display the modal
   const handleAccept = (bookingId) => {
-    console.log("Accepted booking:", bookingId);
+    console.log("handleAccept called for booking:", bookingId);
+    setSelectedBookingId(bookingId);
+    setModalVisible(true);
   };
 
-  // Return future courses only (with a createdAt date in the future)
+  const handleCancel = async (bookingId) => {
+    try {
+      const response = await axios.patch(
+        `https://catchup-project.onrender.com/api/bookings/${bookingId}/status`,
+        { status: "Rejected" }
+      );
+      if (response.data.status === 200) {
+        alert(response.data.message);
+        fetchData();
+      } else {
+        alert(response.data.message || response.data.error);
+      }
+    } catch (error) {
+      console.error("Error canceling booking", error);
+      alert("Something went wrong!");
+    }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const payload = {
+        status: "Accepted",
+        googleMeetLink,
+      };
+      const response = await axios.patch(
+        `https://catchup-project.onrender.com/api/bookings/${selectedBookingId}/status`,
+        payload
+      );
+      if (response.data.status === 200) {
+        alert(response.data.message);
+        setModalVisible(false);
+        setGoogleMeetLink("");
+        fetchData();
+      } else {
+        alert(response.data.message || response.data.error);
+      }
+    } catch (error) {
+      console.error("Error updating booking", error);
+      alert("Something went wrong!");
+    }
+  };
+
+  const handlePress = (path) => {
+    router.push(`/${path}`);
+  };
+
+  // Return only future courses (with createdAt date in the future)
   const getFutureLiveCourses = () => {
     const now = new Date();
     return courses.filter(course => new Date(course.createdAt) > now);
@@ -105,7 +155,7 @@ export default function TasksScreen() {
       <Text style={styles.cardSubtitle}>{item.lessons}</Text>
       <View style={styles.cardRow}>
         <Text style={styles.cardTitle}>{item.title}</Text>
-        <View style={[styles.statusBadge, { backgroundColor: '#1a73e820' }]}>
+        <View style={[styles.statusBadge, { backgroundColor: '#1a73e8' }]}>
           <Text style={[styles.statusText, { color: '#1a73e8' }]}>Live Course</Text>
         </View>
       </View>
@@ -118,68 +168,74 @@ export default function TasksScreen() {
     </View>
   );
 
-  // Render a single booking card using populated userId data
+  // Render a single booking card using populated userId data.  
+  // If the booking status is no longer "Pending," hide the Accept/Reject buttons.
   const renderBookingCard = (item) => (
     <View key={item._id} style={[styles.card, { backgroundColor: '#FFF2E5' }]}>
-      <Text style={styles.cardSubtitle}>
-        {item.userId && item.userId.name ? item.userId.name : 'No Name'}
-      </Text>
+      <Text style={styles.cardSubtitle}>{item.userId?.name || 'No Name'}</Text>
       <View style={styles.cardRow}>
-        <Text style={styles.cardTitle}>
-          {item.userId && item.userId.email ? item.userId.email : 'No Email'}
-        </Text>
+        <Text style={styles.cardTitle}>{item.userId?.email || 'No Email'}</Text>
         <View style={[styles.statusBadge, { backgroundColor: '#FF6F0020' }]}>
-          <Text style={[styles.statusText, { color: '#FF6F00' }]}>Booking</Text>
+          <Text style={[styles.statusText, { color: '#FF6F00' }]}>{item.status ? item.status : 'Booking'}</Text>
         </View>
       </View>
       <Text style={styles.cardTime}>{new Date(item.createdAt).toLocaleTimeString()}</Text>
-      <TouchableOpacity style={[styles.acceptButton, { backgroundColor: '#FF6F00' }]} onPress={() => handleAccept(item._id)}>
-        <Text style={styles.acceptButtonText}>Accept</Text>
-      </TouchableOpacity>
+      {item.status === "Pending" && (
+        <>
+          <TouchableOpacity
+            style={[styles.acceptButton, { backgroundColor: '#FF6F00', marginBottom: 6 }]}
+            onPress={() => handleAccept(item._id)}
+          >
+            <Text style={styles.acceptButtonText}>Accept</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.rejectButton, { backgroundColor: '#F44336', paddingVertical: 10, borderRadius: 8 }]}
+            onPress={() => handleCancel(item._id)}
+          >
+            <Text style={[styles.rejectButtonText, { color: '#fff', textAlign: 'center' }]}>Reject</Text>
+          </TouchableOpacity>
+        </>
+      )}
     </View>
   );
 
-  // Render "Best Experiences" card (for example) using the booking's user data
+  // Render "Best Experiences" card using booking's user data
   const renderExperienceCard = (booking) => {
     const imageSource = booking.imageUrl
-    ? { uri: booking.imageUrl }
-    : require('../../assets/images/3d2.jpg');  
+      ? { uri: booking.imageUrl }
+      : require('../../assets/images/3d2.jpg');
     return (
       <TouchableOpacity key={booking._id} style={styles.experienceCard}>
         <Image source={imageSource} style={styles.experienceImage} />
         <Text style={styles.expCardTitle}>
-          {booking.userId && booking.userId.name ? booking.userId.name : 'No Name'}
+          {booking.userId?.name || 'No Name'}
         </Text>
       </TouchableOpacity>
     );
   };
 
-
   // Helper function to generate date labels for the next 5 days
-const generateDateLabels = (numDays = 5) => {
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const labels = [];
-  const today = new Date();
-  
-  for (let i = 0; i < numDays; i++) {
-    const currentDate = new Date(today);
-    currentDate.setDate(today.getDate() + i);
-    const month = months[currentDate.getMonth()];
-    const day = currentDate.getDate();
-    const dayName = daysOfWeek[currentDate.getDay()];
-    labels.push(`${month}\n${day}\n${dayName}`);
-  }
-  return labels;
-};
-
+  const generateDateLabels = (numDays = 5) => {
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const labels = [];
+    const today = new Date();
+    for (let i = 0; i < numDays; i++) {
+      const currentDate = new Date(today);
+      currentDate.setDate(today.getDate() + i);
+      const month = months[currentDate.getMonth()];
+      const day = currentDate.getDate();
+      const dayName = daysOfWeek[currentDate.getDay()];
+      labels.push(`${month}\n${day}\n${dayName}`);
+    }
+    return labels;
+  };
 
   // Determine which items to show based on activeFilter.
   // When filtering for Live Courses, show only future courses.
   const filteredTasks = () => {
     const courseTasks = getFutureLiveCourses().map(renderCourseCard);
     const bookingTasks = bookings.map(renderBookingCard);
-    
     switch (activeFilter) {
       case 'Live Courses':
         return courseTasks;
@@ -190,82 +246,40 @@ const generateDateLabels = (numDays = 5) => {
     }
   };
 
-  // UI Rendering
   return (
     <View style={styles.container}>
+      <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Top greeting & notification */}
+        {/* Top greeting */}
         <View style={styles.topBar}>
-        <Text style={styles.greeting}>Hi, {teacherName}!</Text>
-        
+          <Text style={styles.greeting}>Hi, {teacherName}!</Text>
         </View>
-
-       
 
         {/* Navigation icons row */}
         <View style={styles.navIconRow}>
-          <TouchableOpacity 
-            style={styles.navIconButton}
-            onPress={() => handlePress('teachers/home')}
-          >
-            <Feather 
-              name="home" 
-              size={24} 
-              color={pathname.includes('home') ? '#1a73e8' : '#1a73e8'}
-            />
+          <TouchableOpacity style={styles.navIconButton} onPress={() => handlePress('teachers/home')}>
+            <Feather name="home" size={24} color="#1a73e8" />
             <Text style={styles.navIconText}>Home</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.navIconButton}
-            onPress={() => handlePress('teachers/bookingscreen')}
-          >
-            <MaterialIcons 
-              name="people-alt" 
-              size={24} 
-              color={pathname.includes('bookingscreen') ? '#1a73e8' : '#1a73e8'}
-            />
+          <TouchableOpacity style={styles.navIconButton} onPress={() => handlePress('teachers/bookingscreen')}>
+            <MaterialIcons name="people-alt" size={24} color="#1a73e8" />
             <Text style={styles.navIconText}>Bookings</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.navIconButton}
-            onPress={() => handlePress('teachers/teacherLivecourses')}
-          >
-            <Feather 
-              name="user" 
-              size={24} 
-              color={pathname.includes('teacherLivecourses') ? '#1a73e8' : '#1a73e8'}
-            />
+          <TouchableOpacity style={styles.navIconButton} onPress={() => handlePress('teachers/teacherLivecourses')}>
+            <Feather name="user" size={24} color="#1a73e8" />
             <Text style={styles.navIconText}>Live Courses</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.navIconButton}
-            onPress={() => handlePress('/help/community')}
-          >
-            <FontAwesome5 
-              name="users" 
-              size={22} 
-              color={pathname.includes('community') ? '#1a73e8' : '#1a73e8'}
-            />
+          <TouchableOpacity style={styles.navIconButton} onPress={() => handlePress('help/community')}>
+            <FontAwesome5 name="hands-helping" size={24} color="#1a73e8" />
             <Text style={styles.navIconText}>Community</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.navIconButton}
-            onPress={() => handlePress('/help/help')}
-          >
-            <Feather 
-              name="help-circle" 
-              size={24} 
-              color={pathname.includes('help') ? '#1a73e8' : '#1a73e8'}
-            />
+          <TouchableOpacity style={styles.navIconButton} onPress={() => handlePress('help/help')}>
+            <Feather name="help-circle" size={24} color="#1a73e8" />
             <Text style={styles.navIconText}>Help</Text>
           </TouchableOpacity>
         </View>
 
-        {/* "Best Experiences" section populated with live bookings */}
+        {/* "Best Experiences" Section (Live Bookings as horizontal scroll) */}
         <Text style={styles.sectionTitle}>Bookings</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.experienceScroll}>
           {bookings.length > 0 ? (
@@ -277,19 +291,18 @@ const generateDateLabels = (numDays = 5) => {
 
         {/* Date Tabs */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.dateTabs}>
-  {generateDateLabels().map((dateLabel, index) => (
-    <TouchableOpacity
-      key={index}
-      style={[styles.dateItem, activeDateIndex === index && styles.activeDate]}
-      onPress={() => setActiveDateIndex(index)}
-    >
-      <Text style={[styles.dateText, activeDateIndex === index && styles.activeDateText]}>
-        {dateLabel}
-      </Text>
-    </TouchableOpacity>
-  ))}
-</ScrollView>
-
+          {generateDateLabels().map((dateLabel, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[styles.dateItem, activeDateIndex === index && styles.activeDate]}
+              onPress={() => setActiveDateIndex(index)}
+            >
+              <Text style={[styles.dateText, activeDateIndex === index && styles.activeDateText]}>
+                {dateLabel}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
 
         {/* Filter Buttons */}
         <View style={styles.filters}>
@@ -309,7 +322,7 @@ const generateDateLabels = (numDays = 5) => {
           })}
         </View>
 
-        {/* Task Cards Container (Live Courses & Bookings) */}
+        {/* Task Cards Container */}
         <View style={styles.tasksContainer}>
           {loading ? (
             <ActivityIndicator size="large" color="#1a73e8" style={{ marginTop: 30 }} />
@@ -319,7 +332,29 @@ const generateDateLabels = (numDays = 5) => {
         </View>
       </ScrollView>
 
-      {/* Bottom Tab (TeacherTab) */}
+      {/* Modal for Google Meet Link */}
+      <Modal visible={modalVisible} transparent animationType="slide">
+  <View style={styles.modalContainer}>
+    <View style={styles.modalContent}>
+      <Text style={styles.modalTitle}>Enter Google Meet Link</Text>
+      <TextInput
+        value={googleMeetLink}
+        onChangeText={setGoogleMeetLink}
+        style={styles.modalInput}
+        placeholder="Paste your Google Meet link here"
+      />
+      <TouchableOpacity style={styles.modalButton} onPress={handleSubmit}>
+        <Text style={styles.modalButtonText}>Submit</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+        <Text style={styles.closeButtonText}>Close</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+
+
+      {/* Bottom Tab */}
       <TeacherTab />
     </View>
   );
@@ -381,6 +416,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#1a73e8',
   },
+  rejectButton: {
+    backgroundColor: '#F44336',
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  rejectButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
@@ -516,5 +562,49 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 14,
     fontWeight: '600',
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '90%',
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 12,
+    elevation: 10,
+  },
+  modalTitle: {
+    fontSize: 18,
+    marginBottom: 10,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  modalButton: {
+    backgroundColor: '#1a73e8',
+    padding: 10,
+    borderRadius: 8,
+  },
+  modalButtonText: {
+    color: '#fff',
+    textAlign: 'center',
+  },
+  closeButton: {
+    marginTop: 10,
+    padding: 10,
+    borderRadius: 8,
+    backgroundColor: '#ccc', // You can change the background color as needed
+  },
+  closeButtonText: {
+    color: '#333',
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
 });

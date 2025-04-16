@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  StatusBar,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import TabIcon from '../../components/TabIcon';
@@ -72,6 +73,7 @@ const teacherslist = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabScroll}>
         {subjects.map((subj, index) => (
           <TouchableOpacity

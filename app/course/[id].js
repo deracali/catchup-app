@@ -9,7 +9,8 @@ import {
   Dimensions,
   ScrollView,
   Alert,
-  ActivityIndicator
+  ActivityIndicator,
+  StatusBar
 } from "react-native";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -172,77 +173,76 @@ const coursedetails = () => {
   }
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <AntDesign name="arrowleft" size={24} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push('quiz/quiz')}>
-  <Feather name="book-open" size={24} color="black" />
-</TouchableOpacity>
-
-      </View>
-
-      {/* Course Video Preview */}
-      <View style={styles.videoContainer}>
-        <Image
-          source={{ uri: course.courseImage }}
-          style={styles.videoThumbnail}
-        />
-      </View>
-
-      {/* Course Details */}
-      <View style={styles.courseInfo}>
-        <Text style={styles.courseMeta}>
-          Posted By: {course.meta.postedBy} Lessons • {course.category}
-        </Text>
-        <Text style={styles.courseTitle}>{course.title}</Text>
-        <View style={styles.studentsContainer}>
-          {course.instructor.image && (
-            <Image
-              source={{ uri: course.instructor.image }}
-              style={styles.studentAvatar}
-            />
-          )}
-          <View style={styles.studentCount}>
-            <Text style={styles.studentCountText}>163+</Text>
-          </View>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 }}>
+    {/* Header */}
+    <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
+    <View style={styles.header}>
+      <TouchableOpacity onPress={() => router.back()}>
+        <AntDesign name="arrowleft" size={24} color="black" />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => router.push('quiz/quiz')}>
+        <Feather name="book-open" size={24} color="black" />
+      </TouchableOpacity>
+    </View>
+  
+    {/* Course Video Preview */}
+    <View style={styles.videoContainer}>
+      <Image
+        source={{ uri: course.courseImage }}
+        style={styles.videoThumbnail}
+      />
+    </View>
+  
+    {/* Course Details */}
+    <View style={styles.courseInfo}>
+      <Text style={styles.courseMeta}>
+        Posted By: {course.meta.postedBy} Lessons • {course.category}
+      </Text>
+      <Text style={styles.courseTitle}>{course.title}</Text>
+      <View style={styles.studentsContainer}>
+        {course.instructor.image && (
+          <Image
+            source={{ uri: course.instructor.image }}
+            style={styles.studentAvatar}
+          />
+        )}
+        <View style={styles.studentCount}>
+          <Text style={styles.studentCountText}>163+</Text>
         </View>
       </View>
-
-      {/* Description */}
-      <View style={styles.descriptionContainer}>
-        <Text style={styles.descriptionTitle}>Description</Text>
-        <Text style={styles.descriptionText}>{course.description}</Text>
-      </View>
-
-      {/* Lesson List */}
-      <ScrollView>
-        <FlatList
-          data={course.highlights}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => (
-            <LessonCard
-              item={item}
-              toggleVisibility={() => {
-                toggleLessonVisibility(item.heading);
-                if (!isVisible[item.heading]) {
-                  handleLessonStart(item);
-                }
-              }}
-              isVisible={isVisible[item.heading]}
-            />
-          )}
-          contentContainerStyle={styles.lessonList}
-          scrollEnabled={false}
-        />
-
-        <TouchableOpacity onPress={handleCompletion} style={styles.button}>
-          <Text style={styles.buttonText}>OK, Great!</Text>
-        </TouchableOpacity>
-      </ScrollView>
     </View>
+  
+    {/* Description */}
+    <View style={styles.descriptionContainer}>
+      <Text style={styles.descriptionTitle}>Description</Text>
+      <Text style={styles.descriptionText}>{course.description}</Text>
+    </View>
+  
+    {/* Lesson List */}
+    <FlatList
+      data={course.highlights}
+      keyExtractor={(item, index) => index.toString()}
+      renderItem={({ item }) => (
+        <LessonCard
+          item={item}
+          toggleVisibility={() => {
+            toggleLessonVisibility(item.heading);
+            if (!isVisible[item.heading]) {
+              handleLessonStart(item);
+            }
+          }}
+          isVisible={isVisible[item.heading]}
+        />
+      )}
+      contentContainerStyle={styles.lessonList}
+      scrollEnabled={false}
+    />
+  
+    <TouchableOpacity onPress={handleCompletion} style={styles.button}>
+      <Text style={styles.buttonText}>Complete!</Text>
+    </TouchableOpacity>
+  </ScrollView>
+  
   );
 };
 

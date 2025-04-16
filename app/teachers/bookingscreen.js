@@ -10,6 +10,7 @@ import {
   Modal,
   TextInput,
   Linking,
+  StatusBar,
 } from "react-native";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -18,7 +19,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import TeacherTab from "../../components/TeacherTab";
 
 const { width, height } = Dimensions.get("window");
-
+// BookingCard Component
 const BookingCard = ({ item, index, onAccept, onCancel }) => {
   const handleJoin = () => {
     if (item.googleMeetLink) {
@@ -35,27 +36,33 @@ const BookingCard = ({ item, index, onAccept, onCancel }) => {
         <Text style={styles.timeText}>{item.time}</Text>
       </View>
       <View style={styles.detailsBlock}>
-        <Text style={styles.locationText}>{item.location || "W 85th St, New York, 10024"}</Text>
-        <Text style={styles.priceText}>${item.price || "150"}</Text>
-        <Text style={styles.lightText}>light</Text>
+        <Text style={styles.locationText}>
+          {item.location || "W 85th St, New York, 10024"}
+        </Text>
+        <Text style={styles.priceText}>{item.status || "pending"}</Text>
+        {/* <Text style={styles.lightText}>light</Text> */}
 
         <TouchableOpacity onPress={handleJoin} style={styles.joinButton}>
           <Text style={styles.joinButtonText}>Join</Text>
         </TouchableOpacity>
 
-        <View style={styles.actionRow}>
-          <TouchableOpacity style={styles.acceptBtn} onPress={() => onAccept(item._id)}>
-            <Text style={styles.acceptBtnText}>Accept</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.cancelBtn} onPress={() => onCancel(item._id)}>
-            <Text style={styles.cancelBtnText}>Cancel</Text>
-          </TouchableOpacity>
-        </View>
+        {/* Render Accept/Cancel buttons only if status is "Pending" or not set */}
+        {(!item.status || item.status === "Pending") && (
+          <View style={styles.actionRow}>
+            <TouchableOpacity style={styles.acceptBtn} onPress={() => onAccept(item._id)}>
+              <Text style={styles.acceptBtnText}>Accept</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.cancelBtn} onPress={() => onCancel(item._id)}>
+              <Text style={styles.cancelBtnText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </View>
   );
 };
 
+// BookingsScreen Component
 const BookingsScreen = () => {
   const router = useRouter();
   const [bookings, setBookings] = useState([]);
@@ -71,11 +78,9 @@ const BookingsScreen = () => {
         console.warn("No teacherId found in AsyncStorage.");
         return;
       }
-
       const response = await axios.get(
         `https://catchup-project.onrender.com/api/bookings/teacher/${teacherId}`
       );
-
       setBookings(response.data);
     } catch (error) {
       console.error("Error fetching bookings", error);
@@ -99,7 +104,6 @@ const BookingsScreen = () => {
         `https://catchup-project.onrender.com/api/bookings/${bookingId}/status`,
         { status: "Rejected" }
       );
-
       if (response.data.status === 200) {
         alert(response.data.message);
         fetchBookings();
@@ -118,12 +122,10 @@ const BookingsScreen = () => {
         status: "Accepted",
         googleMeetLink: googleMeetLink,
       };
-
       const response = await axios.patch(
         `https://catchup-project.onrender.com/api/bookings/${selectedBookingId}/status`,
         payload
       );
-
       if (response.data.status === 200) {
         alert(response.data.message);
         setModalVisible(false);
@@ -140,7 +142,7 @@ const BookingsScreen = () => {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#1a73e8" />
       </View>
     );
@@ -148,6 +150,7 @@ const BookingsScreen = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <AntDesign name="arrowleft" size={24} color="black" />
@@ -231,7 +234,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   locationText: { fontSize: 16, fontWeight: "600", marginBottom: 4 },
-  priceText: { fontSize: 14, color: "gray" },
+  priceText: { fontSize: 14, color: "gray", marginBottom:9 },
   lightText: { fontSize: 14, color: "gray", marginBottom: 10 },
   joinButton: {
     backgroundColor: "#1a73e8",

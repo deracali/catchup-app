@@ -10,12 +10,14 @@ import {
   StyleSheet,
   Dimensions,
   Alert,
+  StatusBar,
 } from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import TabIcon from '../../components/TabIcon';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import LearningCards from '../../components/learningCard';
 
 const { width } = Dimensions.get('window');
 
@@ -99,46 +101,53 @@ const HomeScreen = () => {
       try {
         const storedRole = await AsyncStorage.getItem('@role');
         const userId = await AsyncStorage.getItem('@userId');
-
+  
         if (!storedRole || !userId) {
           Alert.alert("Error", "User not logged in properly.");
           return;
         }
-
+  
         const response = await axios.get('https://catchup-project.onrender.com/api/offlinecourse');
         const allCoursesData = response.data;
-        const filteredCourses = allCoursesData.filter(
-          (course) => course.category.toLowerCase() === storedRole.toLowerCase()
-        );
-
-        setAllCourses(filteredCourses);
-
-        if (storedRole === 'primary') {
-          setPrimaryCourses(filteredCourses);
-          setSecondaryCourses([]);
-        } else if (storedRole === 'secondary') {
+  
+        let filteredCourses = [];
+  
+        if (storedRole === 'secondary' || storedRole === 'adult') {
+          // Show same courses for both roles
+          filteredCourses = allCoursesData.filter(
+            (course) => course.category.toLowerCase() === 'secondary'
+          );
           setSecondaryCourses(filteredCourses);
           setPrimaryCourses([]);
+        } else if (storedRole === 'primary') {
+          filteredCourses = allCoursesData.filter(
+            (course) => course.category.toLowerCase() === 'primary'
+          );
+          setPrimaryCourses(filteredCourses);
+          setSecondaryCourses([]);
         } else {
           console.warn('Unexpected role:', storedRole);
           setPrimaryCourses([]);
           setSecondaryCourses([]);
         }
-
+  
+        setAllCourses(filteredCourses);
+  
         const subjects = Array.from(
           new Set(filteredCourses.map((course) => course.subject).filter(Boolean))
         );
         setCategories(subjects);
-
+  
         handleStreak();
         fetchInProgressCourses();
       } catch (error) {
         console.error('Error fetching courses:', error);
       }
     };
-
+  
     fetchCoursesByRole();
   }, []);
+  
 
   // Fetch role & daily tasks
   useEffect(() => {
@@ -352,6 +361,11 @@ const HomeScreen = () => {
     }
   };
 
+
+  const handleClick = () => {
+    router.push('home/profile');
+  };
+
   // Render an icon for a task
   const renderTaskIcon = (title) => {
     switch (title.toLowerCase()) {
@@ -392,6 +406,7 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
       <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         {/* Purple Header */}
         <View style={styles.header}>
@@ -403,14 +418,16 @@ const HomeScreen = () => {
               What do you want to learn today?
             </Text>
           </View>
-          <Image
-            source={
-              profileImageIndex !== null
-                ? avatarImages[profileImageIndex]
-                : require('../../assets/images/avatar/1.jpg')
-            }
-            style={{ width: 80, height: 80, borderRadius: 40 }}
-          />
+          <TouchableOpacity onPress={handleClick}>
+      <Image
+        source={
+          profileImageIndex !== null
+            ? avatarImages[profileImageIndex]
+            : require('../../assets/images/avatar/1.jpg')
+        }
+        style={{ width: 80, height: 80, borderRadius: 40 }}
+      />
+    </TouchableOpacity>
         </View>
 
         {/* Search Bar */}
@@ -430,7 +447,7 @@ const HomeScreen = () => {
             inProgressCourses.map((course) => (
               <TouchableOpacity
                 key={course._id}
-                onPress={() => navigateToCourseDetail(course._id)}
+                onPress={() => navigateToCourseDetail(course.courseId)}
                 style={styles.featuredCourseCard}
               >
                 <View style={styles.featuredImageContainer}>
@@ -510,7 +527,10 @@ const HomeScreen = () => {
           contentContainerStyle={styles.courseList}
           renderItem={renderCourse}
         />
-        <View style={{ height: 120 }} />
+        <LearningCards/>
+        <View style={{ height: 100 }} />
+
+
       </ScrollView>
 
       {/* Bottom Tab Icon */}

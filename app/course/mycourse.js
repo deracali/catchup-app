@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import TabIcon from "../../components/TabIcon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
 
 const { width, height } = Dimensions.get("window");
 
@@ -11,7 +12,7 @@ const CourseCard = ({ title, date, time, students, lessonCount, googleMeetLink, 
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
 
-
+  const router = useRouter();
 
 
   const hasValidSubscription = async (userId) => {
@@ -57,7 +58,7 @@ const handleJoin = async () => {
     Alert.alert(
       "Subscription Required",
       "You need a Live Class subscription to join this class.",
-      [{ text: "Subscribe", onPress: () => router.push('/subscription/sub') }]
+      [{ text: "Subscribe", onPress: () => router.push('subscription/sub') }]
     );
     return;
   }
@@ -83,7 +84,7 @@ const handleEnroll = async () => {
       Alert.alert(
         "Subscription Required",
         "You need a Live Class subscription to enroll in this course.",
-        [{ text: "Subscribe", onPress: () => router.push('/subscription/sub') }]
+        [{ text: "Subscribe", onPress: () => router.push('subscription/sub') }]
       );
       return;
     }
@@ -240,7 +241,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   slotNumberBox: {
-    backgroundColor: "#6C63FF",
+    backgroundColor: "#1a73e8",
     paddingVertical: width * 0.05,
     paddingHorizontal: width * 0.04,
     alignItems: "center",

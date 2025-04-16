@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  Switch, Alert, ActivityIndicator
+  Switch, Alert, ActivityIndicator,
+  StatusBar
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -76,6 +77,7 @@ const Login = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
          <TouchableOpacity onPress={() => router.back()} style={styles.goBack}>
         <Text style={styles.goBackText}>← Back</Text>
       </TouchableOpacity>

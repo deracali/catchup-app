@@ -7,6 +7,7 @@ import {
   Dimensions,
   TouchableOpacity,
   ScrollView,
+  StatusBar,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -34,6 +35,7 @@ const Leadersboard = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
       {/* Go Back Button */}
       <TouchableOpacity onPress={() => router.back()} style={styles.goBack}>
         <Text style={styles.goBackText}>← Back</Text>

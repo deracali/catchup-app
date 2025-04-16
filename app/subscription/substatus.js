@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, ScrollView, StatusBar } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import moment from 'moment';
@@ -39,6 +39,7 @@ const SubscriptionDetail = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
       <Text style={styles.title}>Subscription Detail</Text>
 
       <View style={styles.card}>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Dimensions, Image, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, Dimensions, Image, ActivityIndicator, StatusBar } from "react-native";
 import { AntDesign, Feather, FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import axios from "axios";
@@ -37,6 +37,7 @@ const QuizDetails = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff", paddingHorizontal: width * 0.05, paddingTop: height * 0.04 }}>
+     <StatusBar translucent backgroundColor="#000" barStyle="light-content" />
       {/* Header */}
       <View style={{ flexDirection: "row", alignItems: "center", marginBottom: height * 0.02 }}>
         <TouchableOpacity onPress={() => router.back()}>
@@ -84,10 +85,10 @@ const QuizDetails = () => {
 
       {/* Description */}
       <Text style={{ fontSize: width * 0.04, fontWeight: "500", marginBottom: height * 0.01 }}>
-        Become the best and fastest player of quiz of the week worldwide and win $50!
+      Revise Exam Topics With Ease, Practice Past Questions Together!
       </Text>
       <Text style={{ fontSize: width * 0.04, color: "#555", marginBottom: height * 0.04 }}>
-        {quizData.description || "This quiz is about design tools for non-designers. Challenge yourself and your friends!"}
+        {quizData.description || "This quiz is about exam past questions for students and adult. Challenge yourself and your friends!"}
       </Text>
 
       {/* Buttons */}
