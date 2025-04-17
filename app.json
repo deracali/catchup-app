@@ -59,6 +59,7 @@
       "policy": "appVersion"
     },
     "updates": {
+      "fallbackToCacheTimeout": 0,
       "url": "https://u.expo.dev/6cb14f75-12b5-4283-ba36-a62693b77be6"
     }
   }
